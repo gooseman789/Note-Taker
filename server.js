@@ -3,6 +3,7 @@ const express = require('express');
 const fs = require('fs')
 // Import built-in Node.js package 'path' to resolve path of files that are located on the server
 const path = require('path');
+const uuid = require('./helpers/uuid')
 
 // Initialize an instance of Express.js
 const app = express();
@@ -32,7 +33,11 @@ app.post('/api/notes', (req, res) => {
       console.error(err);
     } else {
       const parsedData = JSON.parse(data);
-      parsedData.push(req.body);
+      const newNotes = {
+        ...req.body,
+        id: uuid()
+      }
+      parsedData.push(newNotes);
       fs.writeFile('./db/db.json', JSON.stringify(parsedData, null, 2), 'utf8', (err) => {
         if (err) {
           console.error(err);
@@ -41,6 +46,28 @@ app.post('/api/notes', (req, res) => {
           res.json({success: true})
         }
       });
+    }
+  })
+})
+
+app.delete('/api/notes/:id', (req, res) => {
+  fs.readFile('./db/db.json', 'utf8', (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      const parsedDelete = JSON.parse(data);
+      const result = parsedDelete.filter((note) => {
+        return note.id !== req.params.id
+      })
+      fs.writeFile('./db/db.json', JSON.stringify(result, null, 2), 'utf8', (err) => {
+        if (err) {
+          console.error(err)
+          res.status(400).json({success: false})
+        } else {
+          console.log("Data has been removed from the file")
+          res.status(200).json({success: true})
+        }
+      })
     }
   })
 })

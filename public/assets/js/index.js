@@ -105,7 +105,9 @@ const handleNoteDelete = (e) => {
 const handleNoteView = (e) => {
   e.preventDefault();
   activeNote = JSON.parse(e.target.parentElement.getAttribute('data-note'));
+  console.log(activeNote)
   renderActiveNote();
+  
 };
 
 // Sets the activeNote to and empty object and allows the user to enter a new note
